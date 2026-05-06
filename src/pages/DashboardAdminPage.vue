@@ -1,0 +1,198 @@
+<template>
+  <q-page class="dashboard-page q-pa-md q-pa-lg-lg">
+    <div class="dashboard-wrapper">
+
+      <!-- Header -->
+      <div class="row items-center justify-between q-col-gutter-md q-mb-md">
+        <div class="col-12 col-md">
+          <div class="text-h5 text-weight-bold">Dashboard Admin</div>
+          <div class="text-subtitle2 text-grey-7">
+            Operações de pagamentos • baixa conectividade • integrações externas
+          </div>
+        </div>
+
+        <div class="col-12 col-md-auto row q-gutter-sm">
+          <q-btn flat color="primary" icon="refresh" label="Actualizar dados" />
+          <q-btn unelevated color="primary" icon="add" label="Novo Pagamento" />
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-sm-6 col-lg-3">
+          <q-card class="kpi-card">
+            <q-card-section>
+              <div class="text-caption text-grey-7">Taxa de sucesso (24h)</div>
+              <div class="text-h5 text-weight-bold">98.7%</div>
+              <div class="text-positive text-caption">+1.2% vs ontem</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+          <q-card class="kpi-card">
+            <q-card-section>
+              <div class="text-caption text-grey-7">Transações pendentes</div>
+              <div class="text-h5 text-weight-bold">143</div>
+              <div class="text-warning text-caption">16 aguardando reconciliação</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+          <q-card class="kpi-card">
+            <q-card-section>
+              <div class="text-caption text-grey-7">Latência média</div>
+              <div class="text-h5 text-weight-bold">420ms</div>
+              <div class="text-caption text-grey-7">P95: 1.3s</div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+          <q-card class="kpi-card">
+            <q-card-section>
+              <div class="text-caption text-grey-7">Falhas integrações (24h)</div>
+              <div class="text-h5 text-weight-bold">9</div>
+              <div class="text-negative text-caption">M-Pesa API instável</div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="row q-col-gutter-md">
+        <!-- Tabela de transações -->
+        <div class="col-12 col-xl-8">
+          <q-card class="panel-card">
+            <q-card-section class="row items-center justify-between">
+              <div class="text-subtitle1 text-weight-medium">Transações recentes</div>
+              <q-input
+                dense
+                outlined
+                debounce="300"
+                placeholder="Buscar por ID, cliente, estado..."
+                style="width: 320px; max-width: 100%;"
+              >
+                <template #prepend>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-table
+              flat
+              :rows="transactions"
+              :columns="columns"
+              row-key="id"
+              :pagination="{ rowsPerPage: 8 }"
+            >
+              <template #body-cell-status="props">
+                <q-td :props="props">
+                  <q-badge
+                    :color="statusColor(props.row.status)"
+                    text-color="white"
+                    :label="props.row.status"
+                  />
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+
+        <!-- Side panels -->
+        <div class="col-12 col-xl-4">
+          <div class="column q-gutter-md">
+            <q-card class="panel-card">
+              <q-card-section>
+                <div class="text-subtitle1 text-weight-medium q-mb-sm">Status das integrações</div>
+
+                <div class="row items-center justify-between q-mb-sm" v-for="item in providers" :key="item.name">
+                  <div>
+                    <div class="text-body2">{{ item.name }}</div>
+                    <div class="text-caption text-grey-7">Latência: {{ item.latency }}</div>
+                  </div>
+                  <q-badge :color="item.ok ? 'positive' : 'negative'" :label="item.ok ? 'Online' : 'Degradado'" />
+                </div>
+              </q-card-section>
+            </q-card>
+
+            <q-card class="panel-card">
+              <q-card-section>
+                <div class="text-subtitle1 text-weight-medium q-mb-sm">Alertas operacionais</div>
+                <q-list dense separator>
+                  <q-item v-for="alert in alerts" :key="alert.id">
+                    <q-item-section avatar>
+                      <q-icon :name="alert.icon" :color="alert.color" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>{{ alert.title }}</q-item-label>
+                      <q-item-label caption>{{ alert.subtitle }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+const columns = [
+  { name: 'id', label: 'ID', field: 'id', align: 'left' },
+  { name: 'customer', label: 'Cliente', field: 'customer', align: 'left' },
+  { name: 'amount', label: 'Valor', field: 'amount', align: 'left' },
+  { name: 'channel', label: 'Canal', field: 'channel', align: 'left' },
+  { name: 'status', label: 'Estado', field: 'status', align: 'left' },
+  { name: 'createdAt', label: 'Data', field: 'createdAt', align: 'left' }
+]
+
+const transactions = [
+  { id: 'TX-1001', customer: 'Amina Cossa', amount: 'MZN 1,250', channel: 'M-Pesa', status: 'confirmed', createdAt: '06/05 10:31' },
+  { id: 'TX-1002', customer: 'João M.', amount: 'MZN 450', channel: 'e-Mola', status: 'pending', createdAt: '06/05 10:28' },
+  { id: 'TX-1003', customer: 'Sara A.', amount: 'MZN 3,900', channel: 'Bank Transfer', status: 'failed', createdAt: '06/05 10:18' },
+  { id: 'TX-1004', customer: 'Nelson P.', amount: 'MZN 780', channel: 'M-Pesa', status: 'processing', createdAt: '06/05 10:10' }
+]
+
+const providers = [
+  { name: 'M-Pesa', latency: '390ms', ok: true },
+  { name: 'e-Mola', latency: '640ms', ok: true },
+  { name: 'Banco API', latency: '2.1s', ok: false }
+]
+
+const alerts = [
+  { id: 1, icon: 'warning', color: 'warning', title: 'Fila de retry acima do normal', subtitle: '42 mensagens aguardando reenvio' },
+  { id: 2, icon: 'sync_problem', color: 'negative', title: 'Reconciliação pendente', subtitle: '16 transações sem confirmação externa' },
+  { id: 3, icon: 'wifi_off', color: 'primary', title: 'Pico de baixa conectividade', subtitle: 'Regiões Centro com timeout elevado' }
+]
+
+function statusColor(status) {
+  if (status === 'confirmed') return 'positive'
+  if (status === 'pending' || status === 'processing') return 'warning'
+  if (status === 'failed') return 'negative'
+  return 'grey'
+}
+</script>
+
+<style scoped>
+.dashboard-page {
+  background: #f6f8fb;
+  min-height: 100vh;
+}
+
+.dashboard-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.kpi-card,
+.panel-card {
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+}
+</style>
