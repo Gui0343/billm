@@ -13,7 +13,7 @@
 
         <div class="col-12 col-md-auto row q-gutter-sm">
           <q-btn flat color="primary" icon="refresh" label="Actualizar dados" />
-          <q-btn unelevated color="primary" icon="add" label="Novo Pagamento" />
+          <q-btn unelevated color="primary" icon="add" label="Novo Pagamento" @click="paymentDialogOpen = true" />
         </div>
       </div>
 
@@ -60,89 +60,120 @@
         </div>
       </div>
 
-      <!-- Main -->
-      <div class="row q-col-gutter-md">
-        <!-- Tabela de transações -->
-        <div class="col-12 col-xl-8">
-          <q-card class="panel-card">
-            <q-card-section class="row items-center justify-between">
-              <div class="text-subtitle1 text-weight-medium">Transações recentes</div>
-              <q-input
-                dense
-                outlined
-                debounce="300"
-                placeholder="Buscar por ID, cliente, estado..."
-                style="width: 320px; max-width: 100%;"
-              >
-                <template #prepend>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </q-card-section>
+      <q-tabs
+        v-model="dashboardTab"
+        class="dashboard-tabs text-grey-8 q-mb-none"
+        active-color="primary"
+        indicator-color="primary"
+        align="left"
+        no-caps
+        dense
+      >
+        <q-tab name="overview" label="Visão geral" icon="insights" />
+        <q-tab name="operations" label="Operações" icon="table_chart" />
+      </q-tabs>
 
-            <q-separator />
+      <q-separator />
 
-            <q-table
-              flat
-              :rows="transactions"
-              :columns="columns"
-              row-key="id"
-              :pagination="{ rowsPerPage: 8 }"
-            >
-              <template #body-cell-status="props">
-                <q-td :props="props">
-                  <q-badge
-                    :color="statusColor(props.row.status)"
-                    text-color="white"
-                    :label="props.row.status"
-                  />
-                </q-td>
-              </template>
-            </q-table>
-          </q-card>
-        </div>
+      <q-tab-panels v-model="dashboardTab" animated class="dashboard-panels bg-transparent q-pt-md">
+        <q-tab-panel name="overview" class="q-pa-none">
+          <DashboardChartsOverview />
+        </q-tab-panel>
 
-        <!-- Side panels -->
-        <div class="col-12 col-xl-4">
-          <div class="column q-gutter-md">
-            <q-card class="panel-card">
-              <q-card-section>
-                <div class="text-subtitle1 text-weight-medium q-mb-sm">Status das integrações</div>
+        <q-tab-panel name="operations" class="q-pa-none">
+          <div class="row q-col-gutter-md">
+            <!-- Tabela de transações -->
+            <div class="col-12 col-xl-8">
+              <q-card class="panel-card">
+                <q-card-section class="row items-center justify-between">
+                  <div class="text-subtitle1 text-weight-medium">Transações recentes</div>
+                  <q-input
+                    dense
+                    outlined
+                    debounce="300"
+                    placeholder="Buscar por ID, cliente, estado..."
+                    style="width: 320px; max-width: 100%;"
+                  >
+                    <template #prepend>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </q-card-section>
 
-                <div class="row items-center justify-between q-mb-sm" v-for="item in providers" :key="item.name">
-                  <div>
-                    <div class="text-body2">{{ item.name }}</div>
-                    <div class="text-caption text-grey-7">Latência: {{ item.latency }}</div>
-                  </div>
-                  <q-badge :color="item.ok ? 'positive' : 'negative'" :label="item.ok ? 'Online' : 'Degradado'" />
-                </div>
-              </q-card-section>
-            </q-card>
+                <q-separator />
 
-            <q-card class="panel-card">
-              <q-card-section>
-                <div class="text-subtitle1 text-weight-medium q-mb-sm">Alertas operacionais</div>
-                <q-list dense separator>
-                  <q-item v-for="alert in alerts" :key="alert.id">
-                    <q-item-section avatar>
-                      <q-icon :name="alert.icon" :color="alert.color" />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>{{ alert.title }}</q-item-label>
-                      <q-item-label caption>{{ alert.subtitle }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-            </q-card>
+                <q-table
+                  flat
+                  :rows="transactions"
+                  :columns="columns"
+                  row-key="id"
+                  :pagination="{ rowsPerPage: 8 }"
+                >
+                  <template #body-cell-status="props">
+                    <q-td :props="props">
+                      <q-badge
+                        :color="statusColor(props.row.status)"
+                        text-color="white"
+                        :label="props.row.status"
+                      />
+                    </q-td>
+                  </template>
+                </q-table>
+              </q-card>
+            </div>
+
+            <!-- Side panels -->
+            <div class="col-12 col-xl-4">
+              <div class="column q-gutter-md">
+                <q-card class="panel-card">
+                  <q-card-section>
+                    <div class="text-subtitle1 text-weight-medium q-mb-sm">Status das integrações</div>
+
+                    <div class="row items-center justify-between q-mb-sm" v-for="item in providers" :key="item.name">
+                      <div>
+                        <div class="text-body2">{{ item.name }}</div>
+                        <div class="text-caption text-grey-7">Latência: {{ item.latency }}</div>
+                      </div>
+                      <q-badge :color="item.ok ? 'positive' : 'negative'" :label="item.ok ? 'Online' : 'Degradado'" />
+                    </div>
+                  </q-card-section>
+                </q-card>
+
+                <q-card class="panel-card">
+                  <q-card-section>
+                    <div class="text-subtitle1 text-weight-medium q-mb-sm">Alertas operacionais</div>
+                    <q-list dense separator>
+                      <q-item v-for="alert in alerts" :key="alert.id">
+                        <q-item-section avatar>
+                          <q-icon :name="alert.icon" :color="alert.color" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>{{ alert.title }}</q-item-label>
+                          <q-item-label caption>{{ alert.subtitle }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </q-tab-panel>
+      </q-tab-panels>
     </div>
+
+    <PaymentFormDialog v-model="paymentDialogOpen" @submitted="onPaymentSubmitted" />
   </q-page>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import DashboardChartsOverview from 'components/dashboardAdmin/DashboardChartsOverview.vue'
+import PaymentFormDialog from 'components/dashboardAdmin/payment.vue'
+
+const dashboardTab = ref('overview')
+const paymentDialogOpen = ref(false)
+
 const columns = [
   { name: 'id', label: 'ID', field: 'id', align: 'left' },
   { name: 'customer', label: 'Cliente', field: 'customer', align: 'left' },
@@ -152,12 +183,27 @@ const columns = [
   { name: 'createdAt', label: 'Data', field: 'createdAt', align: 'left' }
 ]
 
-const transactions = [
+const transactions = ref([
   { id: 'TX-1001', customer: 'Amina Cossa', amount: 'MZN 1,250', channel: 'M-Pesa', status: 'confirmed', createdAt: '06/05 10:31' },
   { id: 'TX-1002', customer: 'João M.', amount: 'MZN 450', channel: 'e-Mola', status: 'pending', createdAt: '06/05 10:28' },
   { id: 'TX-1003', customer: 'Sara A.', amount: 'MZN 3,900', channel: 'Bank Transfer', status: 'failed', createdAt: '06/05 10:18' },
   { id: 'TX-1004', customer: 'Nelson P.', amount: 'MZN 780', channel: 'M-Pesa', status: 'processing', createdAt: '06/05 10:10' }
-]
+])
+
+function onPaymentSubmitted (row) {
+  const customer = row.reference
+    ? `${row.customer} · ref. ${row.reference}`
+    : row.customer
+  transactions.value.unshift({
+    id: row.id,
+    customer,
+    amount: row.amount,
+    channel: row.channel,
+    status: row.status,
+    createdAt: row.createdAt
+  })
+  dashboardTab.value = 'operations'
+}
 
 const providers = [
   { name: 'M-Pesa', latency: '390ms', ok: true },
@@ -194,5 +240,14 @@ function statusColor(status) {
 .panel-card {
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+}
+
+.dashboard-tabs :deep(.q-tab__label) {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.dashboard-panels :deep(.q-panel) {
+  overflow: visible;
 }
 </style>

@@ -78,7 +78,6 @@ const menuItems = [
   { label: 'Pagamentos', icon: 'receipt_long', to: '/payments' },
   { label: 'Reconciliação', icon: 'sync_alt', to: '/reconciliation' },
   { label: 'Fila de Retry', icon: 'refresh', to: '/retries' },
-  { label: 'Alertas', icon: 'warning', to: '/alerts' },
   { label: 'Utilizadores', icon: 'groups', to: '/users' },
   
 ]
