@@ -6,8 +6,8 @@
         :active-providers="2"
         :total-providers="3"
         :notifications-count="4"
-        user-name="Ana Mondlane"
-        user-role="Admin Financeiro"
+        :user-name="currentSession?.name || 'Operador'"
+        :user-role="isUser ? 'Utilizador' : 'Admin Financeiro'"
         @toggle-drawer="toggleLeftDrawer"
         @logout="onLogout"
       />
@@ -53,13 +53,18 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AppHeader from 'layouts/Header.vue'
 import AppFooter from 'layouts/Footer.vue'
 import { useLastSync } from 'src/composables/useLastSync'
+import { clearAuthSession, readAuthSession } from 'src/composables/useAuthSession'
 
 defineOptions({ name: 'MainLayout' })
 
 const { lastSyncAt, loadLastSyncFromStorage } = useLastSync()
+const router = useRouter()
+const currentSession = readAuthSession()
+const isUser = currentSession?.role === 'user'
 
 const leftDrawerOpen = ref(true)
 const isOnline = ref(true)
@@ -73,21 +78,26 @@ onMounted(() => {
   loadLastSyncFromStorage()
 })
 
-const menuItems = [
-  { label: 'Dashboard', icon: 'dashboard', to: '/' },
-  { label: 'Pagamentos', icon: 'receipt_long', to: '/payments' },
-  { label: 'Reconciliação', icon: 'sync_alt', to: '/reconciliation' },
-  { label: 'Fila de Retry', icon: 'refresh', to: '/retries' },
-  { label: 'Utilizadores', icon: 'groups', to: '/users' },
-  
-]
+const menuItems = isUser
+  ? [
+      { label: 'Meu Dashboard', icon: 'space_dashboard', to: '/user/dashboard' },
+      { label: 'Histórico', icon: 'history', to: '/user/dashboard' }
+    ]
+  : [
+      { label: 'Dashboard', icon: 'dashboard', to: '/' },
+      { label: 'Pagamentos', icon: 'receipt_long', to: '/payments' },
+      { label: 'Reconciliação', icon: 'sync_alt', to: '/reconciliation' },
+      { label: 'Fila de Retry', icon: 'refresh', to: '/retries' },
+      { label: 'Utilizadores', icon: 'groups', to: '/users' }
+    ]
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
 function onLogout () {
-  // ligar com auth depois
+  clearAuthSession()
+  router.push('/login')
 }
 </script>
 

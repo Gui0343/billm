@@ -71,16 +71,16 @@
             class="q-mb-md"
           />
 
-          <q-card flat bordered class="rounded-borders q-pa-md q-mb-md bg-grey-1">
+         <!-- <q-card flat bordered class="rounded-borders q-pa-md q-mb-md bg-grey-1">
             <div class="row items-center no-wrap">
               <q-icon name="cloud" color="primary" size="22px" class="q-mr-sm" />
               <div class="col">
                 <div class="text-body2 text-weight-medium">Modo online</div>
-               <!--<div class="text-caption text-grey-7">Envio directo via PSP</div>-->
+               <div class="text-caption text-grey-7">Envio directo via PSP</div>
               </div>
               <q-toggle v-model="onlineMode" color="primary" />
             </div>
-          </q-card>
+          </q-card>-->
 
           <!--div class="row q-gutter-xs q-mb-lg">
             <q-chip dense outline color="grey-7" text-color="grey-8" size="sm">SIMULAÇÃO</q-chip>
