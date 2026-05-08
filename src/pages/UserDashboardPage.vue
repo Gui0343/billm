@@ -79,9 +79,9 @@ const paymentDialogOpen = ref(false)
 const search = ref('')
 
 const rows = ref([
-  { id: 'USR-1001', reference: 'REF-56010', customer: '+258 84 9901234', channel: 'M-Pesa', amount: 'MZN 350', status: 'confirmed', createdAt: '07/05 09:10' },
-  { id: 'USR-1002', reference: 'REF-56011', customer: '+258 86 1110088', channel: 'e-Mola', amount: 'MZN 1,000', status: 'pending', createdAt: '07/05 09:24' },
-  { id: 'USR-1003', reference: 'REF-56012', customer: '+258 87 7000012', channel: 'Cartão', amount: 'MZN 420', status: 'failed', createdAt: '07/05 10:02' }
+  { id: 'USR-1001', reference: 'REF-56010', customer: '+258 84 9901234', channel: 'M-Pesa', amount: 'MZN 350', status: 'Confirmado', createdAt: '07/05 09:10' },
+  { id: 'USR-1002', reference: 'REF-56011', customer: '+258 86 1110088', channel: 'e-Mola', amount: 'MZN 1,000', status: 'Pendente', createdAt: '07/05 09:24' },
+  { id: 'USR-1003', reference: 'REF-56012', customer: '+258 87 7000012', channel: 'Cartão', amount: 'MZN 420', status: 'Erro', createdAt: '07/05 10:02' }
 ])
 
 const columns = [
@@ -117,10 +117,10 @@ const filteredRows = computed(() => {
 
 function statusColor (status) {
   const s = String(status || '').toLowerCase()
-  if (s === 'confirmed') return 'positive'
-  if (s === 'pending' || s === 'processing') return 'warning'
-  if (s === 'failed' || s === 'error') return 'negative'
-  if (s === 'cancelled') return 'grey'
+  if (s === 'confirmed' || s === 'confirmado') return 'green'
+  if (s === 'pending' || s === 'processing' || s === 'pendente') return 'orange'
+  if (s === 'failed' || s === 'error' || s === 'erro') return 'red'
+  if (s === 'cancelled' || s === 'cancelado') return 'grey'
   return 'grey-7'
 }
 

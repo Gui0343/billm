@@ -26,7 +26,14 @@
       </div>
 
       <q-list padding>
-        <q-item v-for="item in menuItems" :key="item.to" clickable :to="item.to" exact active-class="menu-active">
+        <q-item
+          v-for="item in menuItems"
+          :key="item.to"
+          clickable
+          :to="item.to"
+          :active="isMenuItemActive(item.to)"
+          active-class="menu-active"
+        >
           <q-item-section avatar>
             <q-icon :name="item.icon" />
           </q-item-section>
@@ -53,7 +60,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppHeader from 'layouts/Header.vue'
 import AppFooter from 'layouts/Footer.vue'
 import { useLastSync } from 'src/composables/useLastSync'
@@ -63,6 +70,7 @@ defineOptions({ name: 'MainLayout' })
 
 const { lastSyncAt, loadLastSyncFromStorage } = useLastSync()
 const router = useRouter()
+const route = useRoute()
 const currentSession = readAuthSession()
 const isUser = currentSession?.role === 'user'
 
@@ -81,13 +89,10 @@ onMounted(() => {
 const menuItems = isUser
   ? [
       { label: 'Meu Dashboard', icon: 'space_dashboard', to: '/user/dashboard' },
-      { label: 'Histórico', icon: 'history', to: '/user/dashboard' }
     ]
   : [
       { label: 'Dashboard', icon: 'dashboard', to: '/' },
       { label: 'Pagamentos', icon: 'receipt_long', to: '/payments' },
-      { label: 'Reconciliação', icon: 'sync_alt', to: '/reconciliation' },
-      { label: 'Fila de Retry', icon: 'refresh', to: '/retries' },
       { label: 'Utilizadores', icon: 'groups', to: '/users' }
     ]
 
@@ -98,6 +103,11 @@ function toggleLeftDrawer () {
 function onLogout () {
   clearAuthSession()
   router.push('/login')
+}
+
+function isMenuItemActive (to) {
+  if (to === '/') return route.path === '/'
+  return route.path === to || route.path.startsWith(`${to}/`)
 }
 </script>
 

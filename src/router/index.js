@@ -55,12 +55,17 @@ export default route(function (/* { store, ssrContext } */) {
       return
     }
 
-    if (to.path.startsWith('/user') && session?.role === 'admin') {
+    if (to.path.startsWith('/user/') && session?.role === 'admin') {
       next('/')
       return
     }
 
     if (to.path === '/payments' && session?.role === 'user') {
+      next('/user/dashboard')
+      return
+    }
+
+    if (to.path === '/users' && session?.role === 'user') {
       next('/user/dashboard')
       return
     }

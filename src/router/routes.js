@@ -14,6 +14,7 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/DashboardAdminPage.vue') },
       { path: 'payments', component: () => import('pages/PaymentsPage.vue') },
+      { path: 'users', component: () => import('pages/UsersPage.vue') },
       { path: 'user/dashboard', component: () => import('pages/UserDashboardPage.vue') }
     ]
   },

@@ -12,7 +12,14 @@
         </div>
 
         <div class="col-12 col-md-auto row q-gutter-sm">
-          <q-btn flat color="primary" icon="refresh" label="Actualizar dados" />
+          <q-btn
+            flat
+            color="primary"
+            icon="refresh"
+            label="Actualizar dados"
+            :loading="isRefreshing"
+            @click="onRefreshData"
+          />
           <q-btn unelevated color="primary" icon="add" label="Novo Pagamento" @click="paymentDialogOpen = true" />
         </div>
       </div>
@@ -77,7 +84,7 @@
 
       <q-tab-panels v-model="dashboardTab" animated class="dashboard-panels bg-transparent q-pt-md">
         <q-tab-panel name="overview" class="q-pa-none">
-          <DashboardChartsOverview />
+          <DashboardChartsOverview :key="overviewRefreshKey" />
         </q-tab-panel>
 
         <q-tab-panel name="operations" class="q-pa-none">
@@ -172,9 +179,13 @@ import DashboardChartsOverview from 'components/dashboardAdmin/DashboardChartsOv
 import PaymentFormDialog from 'components/dashboardAdmin/payment.vue'
 import { readAuthSession } from 'src/composables/useAuthSession'
 import { computed } from 'vue'
+import { useQuasar } from 'quasar'
 
 const dashboardTab = ref('overview')
 const paymentDialogOpen = ref(false)
+const isRefreshing = ref(false)
+const overviewRefreshKey = ref(0)
+const $q = useQuasar()
 
 const columns = [
   { name: 'id', label: 'ID', field: 'id', align: 'left' },
@@ -186,10 +197,10 @@ const columns = [
 ]
 
 const transactions = ref([
-  { id: 'TX-1001', customer: 'Amina Cossa', amount: 'MZN 1,250', channel: 'M-Pesa', status: 'confirmed', createdAt: '06/05 10:31' },
-  { id: 'TX-1002', customer: 'João M.', amount: 'MZN 450', channel: 'e-Mola', status: 'pending', createdAt: '06/05 10:28' },
-  { id: 'TX-1003', customer: 'Sara A.', amount: 'MZN 3,900', channel: 'Bank Transfer', status: 'failed', createdAt: '06/05 10:18' },
-  { id: 'TX-1004', customer: 'Nelson P.', amount: 'MZN 780', channel: 'M-Pesa', status: 'processing', createdAt: '06/05 10:10' }
+  { id: 'TX-1001', customer: 'Amina Cossa', amount: 'MZN 1,250', channel: 'M-Pesa', status: 'Confirmado', createdAt: '06/05 10:31' },
+  { id: 'TX-1002', customer: 'João M.', amount: 'MZN 450', channel: 'e-Mola', status: 'Pendente', createdAt: '06/05 10:28' },
+  { id: 'TX-1003', customer: 'Sara A.', amount: 'MZN 3,900', channel: 'Bank Transfer', status: 'Erro', createdAt: '06/05 10:18' },
+  { id: 'TX-1004', customer: 'Nelson P.', amount: 'MZN 780', channel: 'M-Pesa', status: 'Cancelado', createdAt: '06/05 10:10' }
 ])
 
 function onPaymentSubmitted (row) {
@@ -219,10 +230,30 @@ const alerts = [
   { id: 3, icon: 'wifi_off', color: 'primary', title: 'Pico de baixa conectividade', subtitle: 'Regiões Centro com timeout elevado' }
 ]
 
-function statusColor(status) {
-  if (status === 'confirmed') return 'positive'
-  if (status === 'pending' || status === 'processing') return 'warning'
-  if (status === 'failed') return 'negative'
+function onRefreshData () {
+  if (isRefreshing.value) return
+  isRefreshing.value = true
+
+  window.setTimeout(() => {
+    // Reatribui os mesmos dados para simular sincronização sem backend real.
+    transactions.value = [...transactions.value]
+    overviewRefreshKey.value += 1
+    isRefreshing.value = false
+    $q.notify({
+      type: 'positive',
+      message: 'Dados actualizados',
+      position: 'top',
+      timeout: 1800
+    })
+  }, 650)
+}
+
+function statusColor (status) {
+  const s = String(status || '').toLowerCase()
+  if (s === 'confirmed' || s === 'confirmado') return 'green'
+  if (s === 'pending' || s === 'processing' || s === 'pendente') return 'orange'
+  if (s === 'failed' || s === 'error' || s === 'erro') return 'red'
+  if (s === 'cancelled' || s === 'cancelado') return 'grey'
   return 'grey'
 }
 

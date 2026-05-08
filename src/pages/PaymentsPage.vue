@@ -140,10 +140,10 @@ const rows = ref([
 
 function statusColor (status) {
   const s = String(status || '').toLowerCase()
-  if (s === 'confirmed') return 'positive'
-  if (s === 'pending' || s === 'processing') return 'warning'
-  if (s === 'failed') return 'negative'
-  if (s === 'cancelled') return 'grey'
+  if (s === 'confirmed' || s === 'confirmado') return 'green'
+  if (s === 'pending' || s === 'processing' || s === 'pendente') return 'orange'
+  if (s === 'failed' || s === 'error' || s === 'erro') return 'red'
+  if (s === 'cancelled' || s === 'cancelado') return 'grey'
   return 'grey-7'
 }
 
