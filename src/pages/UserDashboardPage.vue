@@ -3,7 +3,7 @@
     <div class="dashboard-wrapper">
       <div class="row items-center justify-between q-col-gutter-md q-mb-md">
         <div class="col-12 col-md">
-          <div class="text-h5 text-weight-bold">Meu Dashboard</div>
+          <div class="text-h5 text-weight-bold">{{ greetingWithName }}</div>
           <div class="text-subtitle2 text-grey-7">Histórico pessoal de pagamentos e nova transferência</div>
         </div>
         <div class="col-12 col-md-auto">
@@ -72,7 +72,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import PaymentFormDialog from 'components/dashboardAdmin/payment.vue'
-
+import { readAuthSession } from 'src/composables/useAuthSession'
 defineOptions({ name: 'UserDashboardPage' })
 
 const paymentDialogOpen = ref(false)
@@ -145,6 +145,19 @@ function onPaymentSubmitted (row) {
     createdAt: row.createdAt || new Intl.DateTimeFormat('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date())
   })
 }
+
+const session = readAuthSession()
+
+const userName = computed(() => session?.name || 'Utilizador')
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour >= 5 && hour < 12) return 'Bom dia'
+  if (hour >= 12 && hour < 18) return 'Boa tarde'
+  return 'Boa noite'
+})
+
+const greetingWithName = computed(() => `${greeting.value}, ${userName.value}`)
 </script>
 
 <style scoped>

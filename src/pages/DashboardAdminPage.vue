@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="row items-center justify-between q-col-gutter-md q-mb-md">
         <div class="col-12 col-md">
-          <div class="text-h5 text-weight-bold">Dashboard Admin</div>
+          <div class="text-h5 text-weight-bold">{{ greetingWithName }}</div>
           <div class="text-subtitle2 text-grey-7">
             Operações de pagamentos • baixa conectividade • integrações externas
           </div>
@@ -170,6 +170,8 @@
 import { ref } from 'vue'
 import DashboardChartsOverview from 'components/dashboardAdmin/DashboardChartsOverview.vue'
 import PaymentFormDialog from 'components/dashboardAdmin/payment.vue'
+import { readAuthSession } from 'src/composables/useAuthSession'
+import { computed } from 'vue'
 
 const dashboardTab = ref('overview')
 const paymentDialogOpen = ref(false)
@@ -223,6 +225,21 @@ function statusColor(status) {
   if (status === 'failed') return 'negative'
   return 'grey'
 }
+
+
+
+const session = readAuthSession()
+
+const userName = computed(() => session?.name || 'Utilizador')
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour >= 5 && hour < 12) return 'Bom dia'
+  if (hour >= 12 && hour < 18) return 'Boa tarde'
+  return 'Boa noite'
+})
+
+const greetingWithName = computed(() => `${greeting.value}, ${userName.value}`)
 </script>
 
 <style scoped>

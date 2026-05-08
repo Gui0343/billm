@@ -72,7 +72,7 @@ const email = ref('ana.margaridamondlane@gmail.com')
 const password = ref('123456')
 
 const ussdFlow = [
-  { code: '*144#', title: 'Pagamento Resiliente em Moçambique', description: '1. Enviar pagamento  2. Histórico  0. Sair', response: '1' },
+  { code: '*144#', title: 'Pagamentos em Moçambique', description: '1. Enviar pagamento  2. Histórico  0. Sair', response: '1' },
   { code: '*144# > 1', title: 'Enviar pagamento', description: 'Escolha o método: 1. Carteira móvel  2. Cartão', response: '1' },
   { code: '*144# > 1 > 1', title: 'Carteira móvel', description: 'Carteira móvel: 1. M-Pesa  2. e-Mola  3. mKesh', response: '1' },
   { code: '*144# > ...', title: 'Dados da transferência', description: 'Digite telefone destino e valor em Metical', response: '+258841234567,450' },
